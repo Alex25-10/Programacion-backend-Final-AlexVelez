@@ -1,0 +1,22 @@
+[
+  {
+    "id": 1,
+    "title": "Campera de cuero",
+    "description": "Campera de cuero talle M",
+    "code": "LP123",
+    "price": 90000,
+    "stock": 10,
+    "category": "ropa",
+    "status": true
+  },
+  {
+    "id": 2,
+    "title": "Campera de cuero",
+    "description": "Campera de cuero talle M",
+    "code": "LP123",
+    "price": 90000,
+    "stock": 10,
+    "category": "ropa",
+    "status": true
+  }
+]
