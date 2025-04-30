@@ -3,30 +3,64 @@ const path = require('path');
 
 class CartManager {
   constructor() {
-    // Usa path.resolve para rutas absolutas confiables
-    this.path = path.resolve(__dirname, '../../data/carts.json');
-    this.initializeFile().catch(console.error); // Manejo de error inicial
+    this.path = path.resolve(__dirname, '../data/carts.json');
   }
 
-  async initializeFile() {
+  async createCart() {
+    const carts = await this.getCarts();
+    const newCart = {
+      id: carts.length > 0 ? Math.max(...carts.map(c => c.id)) + 1 : 1,
+      products: []
+    };
+    carts.push(newCart);
+    await fs.writeFile(this.path, JSON.stringify(carts, null, 2));
+    return newCart;
+  }
+
+  async getCarts() {
     try {
-      // Verifica si el directorio existe, si no, lo crea
-      await fs.mkdir(path.dirname(this.path), { recursive: true });
-      
-      // Verifica si el archivo existe
-      try {
-        await fs.access(this.path);
-      } catch {
-        // Si no existe, lo crea con array vacío
-        await fs.writeFile(this.path, '[]', 'utf8');
-      }
+      const data = await fs.readFile(this.path, 'utf8');
+      return JSON.parse(data);
     } catch (error) {
-      console.error('Error inicializando archivo:', error);
-      throw error;
+      await fs.writeFile(this.path, '[]');
+      return [];
     }
   }
 
-  // ... resto de tus métodos
+  // Método nuevo para agregar productos al carrito
+  async addProductToCart(cartId, productId) {
+    const carts = await this.getCarts();
+    const cartIndex = carts.findIndex(c => c.id === cartId);
+
+    if (cartIndex === -1) {
+      throw new Error('Carrito no encontrado');
+    }
+
+    // Busca si el producto ya está en el carrito
+    const productIndex = carts[cartIndex].products.findIndex(
+      p => p.product === productId
+    );
+
+    if (productIndex === -1) {
+      // Si el producto no existe en el carrito, lo agrega
+      carts[cartIndex].products.push({
+        product: productId,
+        quantity: 1
+      });
+    } else {
+      // Si ya existe, incrementa la cantidad
+      carts[cartIndex].products[productIndex].quantity++;
+    }
+
+    await fs.writeFile(this.path, JSON.stringify(carts, null, 2));
+    return carts[cartIndex];
+  }
+
+  // Método nuevo para obtener un carrito por ID
+  async getCartById(id) {
+    const carts = await this.getCarts();
+    return carts.find(c => c.id === id);
+  }
 }
 
-module.exports = CartManager; // ¡Exportación correcta!
+module.exports = CartManager;

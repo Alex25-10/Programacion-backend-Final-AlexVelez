@@ -1,22 +1,24 @@
 [
   {
     "id": 1,
-    "title": "Campera de cuero",
-    "description": "Campera de cuero talle M",
-    "code": "LP123",
+    "title": "Campera de Cuero",
+    "description": "Campera de cuero talle m",
+    "code": "ZAP123",
     "price": 90000,
-    "stock": 10,
+    "stock": 50,
     "category": "ropa",
-    "status": true
+    "status": true,
+    "thumbnails": []
   },
   {
     "id": 2,
-    "title": "Campera de cuero",
-    "description": "Campera de cuero talle M",
-    "code": "LP123",
-    "price": 90000,
-    "stock": 10,
+    "title": "Pantalon Deportivo",
+    "description": "Pantalon Deportivo talle M",
+    "code": "pant123",
+    "price": 32000,
+    "stock": 50,
     "category": "ropa",
-    "status": true
+    "status": true,
+    "thumbnails": []
   }
 ]
