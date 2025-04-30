@@ -29,7 +29,7 @@ class ProductManager {
     }
   }
 
-  // ¡Método nuevo agregado aquí!
+  
   async getProductById(id) {
     const products = await this.getProducts();
     const product = products.find(p => p.id === id);

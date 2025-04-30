@@ -3,14 +3,14 @@ const app = express();
 const productsRouter = require('./routes/products.router');
 const cartsRouter = require('./routes/carts.router');
 
-// Middlewares
+
 app.use(express.json());
 
-// Rutas
+
 app.use('/api/products', productsRouter);
 app.use('/api/carts', cartsRouter);
 
-// Ruta de prueba
+
 app.get('/', (req, res) => {
   res.send('¡API de productos y carritos funcionando! 🚀');
 });

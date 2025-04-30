@@ -1,12 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const CartManager = require('../managers/CartManager');
-const ProductManager = require('../managers/ProductManager'); // Importa el ProductManager
+const ProductManager = require('../managers/ProductManager'); 
 
 const cartManager = new CartManager();
-const productManager = new ProductManager(); // Crea una instancia
+const productManager = new ProductManager(); 
 
-// Crea un carrito vacío
+
 router.post('/', async (req, res) => {
   try {
     const newCart = await cartManager.createCart();
@@ -16,19 +16,19 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Agrega producto a un carrito (¡Ruta faltante!)
+
 router.post('/:cid/product/:pid', async (req, res) => {
   try {
-    const cartId = parseInt(req.params.cid); // ID del carrito
-    const productId = parseInt(req.params.pid); // ID del producto
+    const cartId = parseInt(req.params.cid); 
+    const productId = parseInt(req.params.pid); 
 
-    // Verifica si el producto existe
+    
     const product = await productManager.getProductById(productId);
     if (!product) {
       return res.status(404).json({ error: 'Producto no encontrado' });
     }
 
-    // Agrega el producto al carrito
+    
     const updatedCart = await cartManager.addProductToCart(cartId, productId);
     res.json(updatedCart);
   } catch (error) {
@@ -36,7 +36,7 @@ router.post('/:cid/product/:pid', async (req, res) => {
   }
 });
 
-// Lista productos de un carrito (opcional pero útil)
+
 router.get('/:cid', async (req, res) => {
   try {
     const cartId = parseInt(req.params.cid);

@@ -27,7 +27,7 @@ class CartManager {
     }
   }
 
-  // Método nuevo para agregar productos al carrito
+  
   async addProductToCart(cartId, productId) {
     const carts = await this.getCarts();
     const cartIndex = carts.findIndex(c => c.id === cartId);
@@ -36,19 +36,19 @@ class CartManager {
       throw new Error('Carrito no encontrado');
     }
 
-    // Busca si el producto ya está en el carrito
+    
     const productIndex = carts[cartIndex].products.findIndex(
       p => p.product === productId
     );
 
     if (productIndex === -1) {
-      // Si el producto no existe en el carrito, lo agrega
+      
       carts[cartIndex].products.push({
         product: productId,
         quantity: 1
       });
     } else {
-      // Si ya existe, incrementa la cantidad
+      
       carts[cartIndex].products[productIndex].quantity++;
     }
 
@@ -56,7 +56,7 @@ class CartManager {
     return carts[cartIndex];
   }
 
-  // Método nuevo para obtener un carrito por ID
+  
   async getCartById(id) {
     const carts = await this.getCarts();
     return carts.find(c => c.id === id);
