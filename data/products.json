@@ -1,0 +1,46 @@
+[
+  {
+    "id": 1,
+    "title": "Campera de Cuero",
+    "description": "Campera de cuero talle m",
+    "code": "ZAP123",
+    "price": 90000,
+    "stock": 50,
+    "category": "ropa",
+    "status": true,
+    "thumbnails": []
+  },
+  {
+    "id": 2,
+    "title": "Pantalon Deportivo",
+    "description": "Pantalon Deportivo talle M",
+    "code": "pant123",
+    "price": 32000,
+    "stock": 50,
+    "category": "ropa",
+    "status": true,
+    "thumbnails": []
+  },
+  {
+    "id": 3,
+    "title": "Lámpara LED",
+    "description": "De colores",
+    "code": "LAMP456",
+    "price": 150,
+    "stock": 20,
+    "category": "decoración",
+    "status": true,
+    "thumbnails": []
+  },
+  {
+    "id": 1747698383252,
+    "title": "Remera deportiva",
+    "price": 25000,
+    "description": "Descripción predeterminada",
+    "code": "COD1747698383249",
+    "stock": 10,
+    "category": "general",
+    "status": true,
+    "thumbnails": []
+  }
+]

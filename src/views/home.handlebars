@@ -1,0 +1,11 @@
+<div class="container">
+  <h1>Productos Disponibles</h1>
+  <ul>
+    {{#each products}}
+      <li>{{this.title}} - ${{this.price}} (Stock: {{this.stock}})</li>
+    {{else}}
+      <li>No hay productos disponibles</li>
+    {{/each}}
+  </ul>
+  <a href="/realtimeproducts">Ver en tiempo real</a>
+</div>
