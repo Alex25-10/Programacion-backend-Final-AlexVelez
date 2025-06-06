@@ -1,0 +1,62 @@
+<h1>{{product.title}}</h1>
+
+<div class="product-detail">
+  {{#if product.thumbnails.[0]}}
+    <img src="{{product.thumbnails.[0]}}" alt="Imagen de {{product.title}}" width="200" />
+  {{else}}
+    <img src="/placeholder.jpg" alt="Sin imagen disponible" width="200" />
+  {{/if}}
+
+  <ul>
+    <li><strong>Precio:</strong> ${{product.price}}</li>
+    <li><strong>Stock:</strong> {{product.stock}}</li>
+    <li><strong>Categoría:</strong> {{product.category}}</li>
+    <li><strong>Descripción:</strong> {{product.description}}</li>
+  </ul>
+
+  <button onclick="agregarAlCarrito()">🛒 Agregar al carrito</button>
+</div>
+
+<a href="/">⬅️ Volver al inicio</a>
+
+<script>
+  async function agregarAlCarrito() {
+    let cid = localStorage.getItem("cid");
+
+    // Si no existe carrito, lo creamos
+    if (!cid) {
+      try {
+        const crearCarrito = await fetch("/api/carts", { method: "POST" });
+        const carritoCreado = await crearCarrito.json();
+
+        if (carritoCreado.status === "success") {
+          cid = carritoCreado.cart._id;
+          localStorage.setItem("cid", cid);
+        } else {
+          alert("No se pudo crear el carrito 😢");
+          return;
+        }
+      } catch (error) {
+        alert("Error al crear el carrito 😢");
+        return;
+      }
+    }
+
+    // Agregamos el producto al carrito
+    try {
+      const response = await fetch(`/api/carts/${cid}/products/{{product._id}}`, {
+        method: "POST"
+      });
+
+      const data = await response.json();
+
+      if (data.status === "success") {
+        alert("Producto agregado al carrito 🎉");
+      } else {
+        alert("Error: " + data.message);
+      }
+    } catch (error) {
+      alert("Error al agregar al carrito 😢");
+    }
+  }
+</script>

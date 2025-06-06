@@ -1,0 +1,12 @@
+body {
+  font-family: monospace;
+  padding: 20px;
+}
+
+#productos {
+  margin-top: 20px;
+}
+
+li {
+  margin-bottom: 10px;
+}

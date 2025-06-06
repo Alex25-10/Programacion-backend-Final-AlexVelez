@@ -1,11 +1,65 @@
-<div class="container">
-  <h1>Productos Disponibles</h1>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Productos</title>
+  <link rel="stylesheet" href="/css/{{style}}">
+</head>
+<body>
+  <h1>🛍️ Lista de Productos</h1>
+
+  <!-- 🔍 Formulario de Filtros -->
+  <form method="GET" action="/">
+    <label for="query">Buscar:</label>
+    <input type="text" name="query" id="query" value="{{filters.query}}" placeholder="Nombre o categoría">
+
+    <label for="availability">Disponibilidad:</label>
+    <select name="availability" id="availability">
+      <option value="">Todas</option>
+      <option value="available" {{#if (eq filters.availability "available")}}selected{{/if}}>Solo disponibles</option>
+    </select>
+
+    <label for="sort">Ordenar por precio:</label>
+    <select name="sort" id="sort">
+      <option value="">Ninguno</option>
+      <option value="price" {{#if (eq filters.sort "price")}}selected{{/if}}>Ascendente</option>
+      <option value="-price" {{#if (eq filters.sort "-price")}}selected{{/if}}>Descendente</option>
+    </select>
+
+    <button type="submit">Aplicar</button>
+    {{#if hasFilters}}
+      <a href="/" style="margin-left: 10px;">Limpiar filtros</a>
+    {{/if}}
+  </form>
+
+  <hr>
+
+  <!-- 📦 Lista de Productos -->
   <ul>
     {{#each products}}
-      <li>{{this.title}} - ${{this.price}} (Stock: {{this.stock}})</li>
-    {{else}}
-      <li>No hay productos disponibles</li>
+      <li>
+        <h3>{{title}}</h3>
+        <p><strong>Precio:</strong> ${{price}}</p>
+        <p><strong>Stock:</strong> {{stock}}</p>
+        <p><strong>Categoría:</strong> {{category}}</p>
+        <a href="/products/{{_id}}">Ver detalle</a>
+      </li>
+      <hr>
     {{/each}}
   </ul>
-  <a href="/realtimeproducts">Ver en tiempo real</a>
-</div>
+
+  <!-- 📄 Paginación -->
+  <div class="pagination">
+    {{#if pagination.hasPrevPage}}
+      <a href="{{pagination.prevLink}}">⬅ Página anterior</a>
+    {{/if}}
+
+    <span>Página {{pagination.page}} de {{pagination.totalPages}}</span>
+
+    {{#if pagination.hasNextPage}}
+      <a href="{{pagination.nextLink}}">Página siguiente ➡</a>
+    {{/if}}
+  </div>
+
+</body>
+</html>

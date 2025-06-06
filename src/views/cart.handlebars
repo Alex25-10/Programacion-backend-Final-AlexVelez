@@ -1,0 +1,27 @@
+<h1>🛒 Carrito</h1>
+
+{{#if products.length}}
+  <ul>
+    {{#each products}}
+      <li>
+        <strong>{{this.product.title}}</strong> - ${{this.product.price}} x {{this.quantity}} unidad(es)
+        <!-- Botón para eliminar este producto -->
+        <form action="/carts/{{../cartId}}/products/{{this.product._id}}?_method=DELETE" method="POST" style="display:inline;">
+          <button type="submit">❌ Eliminar</button>
+        </form>
+      </li>
+    {{/each}}
+  </ul>
+
+  <!-- Mostrar total del carrito -->
+  <h3>Total: ${{calcTotal products}}</h3>
+
+  <!-- Botón para vaciar todo el carrito -->
+  <form action="/carts/{{cartId}}?_method=DELETE" method="POST">
+    <button type="submit">🧹 Vaciar carrito</button>
+  </form>
+{{else}}
+  <p>Tu carrito está vacío ☹️</p>
+{{/if}}
+
+<a href="/">Volver al inicio</a>

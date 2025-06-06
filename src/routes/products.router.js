@@ -1,128 +1,105 @@
-const express = require('express');
-const router = express.Router();
-const ProductManager = require('../managers/ProductManager');
+import express from 'express';
 
-module.exports = (io) => {
-  const productManager = new ProductManager();
+export function createProductsRouter() {
+  const router = express.Router();
 
-  // Middleware para validar campos del producto
-  const validateProduct = (req, res, next) => {
-    const requiredFields = ['title', 'description', 'code', 'price', 'stock', 'category'];
-    const missingFields = requiredFields.filter(field => !req.body[field]);
-    
-    if (missingFields.length > 0) {
-      return res.status(400).json({ 
-        error: 'Campos faltantes',
-        missingFields: missingFields 
-      });
-    }
-
-    if (typeof req.body.price !== 'number' || req.body.price <= 0) {
-      return res.status(400).json({ error: 'El precio debe ser un número positivo' });
-    }
-
-    next();
-  };
-
-  // Emitir actualización de productos via WebSocket
-  const emitProductsUpdate = async () => {
+  // GET /api/products con paginación, filtros y ordenamiento
+  router.get("/", async (req, res) => {
     try {
-      const products = await productManager.getProducts();
-      io.emit('productos:updated', products);
-    } catch (error) {
-      console.error('Error al emitir actualización:', error);
-    }
-  };
-
-  // POST - Crear producto
-  router.post('/', validateProduct, async (req, res) => {
-    try {
-      const newProduct = await productManager.addProduct({
-        ...req.body,
-        status: req.body.status !== undefined ? req.body.status : true
+      const { limit = 10, page = 1, sort, query, availability } = req.query;
+      
+      const result = await req.productService.getProducts({
+        limit: parseInt(limit),
+        page: parseInt(page),
+        sort,
+        query,
+        availability,
+        baseUrl: `${req.protocol}://${req.get('host')}${req.originalUrl.split('?')[0]}`
       });
-      
-      await emitProductsUpdate();
-      res.status(201).json(newProduct);
-    } catch (error) {
-      res.status(400).json({ 
-        error: error.message,
-        type: error.message.includes('código') ? 'DUPLICATE_CODE' : 'VALIDATION_ERROR'
-      });
-    }
-  });
 
-  // GET - Obtener todos los productos (con paginación)
-  router.get('/', async (req, res) => {
-    try {
-      const { limit, page = 1 } = req.query;
-      const allProducts = await productManager.getProducts();
-      
-      // Paginación
-      const startIndex = (page - 1) * limit;
-      const endIndex = limit ? startIndex + parseInt(limit) : undefined;
-      const products = limit ? allProducts.slice(startIndex, endIndex) : allProducts;
-      
+      // Emitir evento de actualización si es necesario
+      if (req.io && (query || availability)) {
+        req.io.emit('productsUpdated', result.payload);
+      }
+
       res.json({
         status: 'success',
-        payload: products,
-        totalPages: limit ? Math.ceil(allProducts.length / limit) : 1,
-        prevPage: page > 1 ? parseInt(page) - 1 : null,
-        nextPage: endIndex < allProducts.length ? parseInt(page) + 1 : null
+        ...result
       });
     } catch (error) {
+      console.error("Error en GET /api/products:", error.message);
       res.status(500).json({ 
-        status: 'error',
-        error: 'Error al obtener productos' 
+        status: "error", 
+        message: process.env.NODE_ENV === 'development' ? error.message : 'Error al obtener productos'
       });
     }
   });
 
-  // GET - Obtener producto por ID
-  router.get('/:pid', async (req, res) => {
+  // GET /api/products/:pid
+  router.get("/:pid", async (req, res) => {
     try {
-      const productId = parseInt(req.params.pid);
-      const product = await productManager.getProductById(productId);
-      res.json(product);
+      const product = await req.productService.getProductById(req.params.pid);
+      if (!product) {
+        return res.status(404).json({ status: "error", message: "Producto no encontrado" });
+      }
+      res.json({ status: "success", payload: product });
     } catch (error) {
-      res.status(error.message.includes('no existe') ? 404 : 500).json({ 
-        error: error.message 
-      });
+      console.error(`Error en GET /api/products/${req.params.pid}:`, error.message);
+      res.status(400).json({ status: "error", message: error.message });
     }
   });
 
-  // PUT - Actualizar producto
-  router.put('/:pid', validateProduct, async (req, res) => {
+  // POST /api/products
+  router.post("/", async (req, res) => {
     try {
-      const productId = parseInt(req.params.pid);
-      const updatedProduct = await productManager.updateProduct(productId, req.body);
+      const newProduct = await req.productService.addProduct(req.body);
       
-      await emitProductsUpdate();
-      res.json(updatedProduct);
+      // Notificar a todos los clientes via WebSocket
+      if (req.io) {
+        req.io.emit('newProduct', newProduct);
+      }
+
+      res.status(201).json({ status: "success", payload: newProduct });
     } catch (error) {
-      const statusCode = error.message.includes('no encontrado') ? 404 : 
-                        error.message.includes('código') ? 409 : 400;
-      res.status(statusCode).json({ error: error.message });
+      console.error("Error en POST /api/products:", error.message);
+      res.status(400).json({ status: "error", message: error.message });
     }
   });
 
-  // DELETE - Eliminar producto
-  router.delete('/:pid', async (req, res) => {
+  // PUT /api/products/:pid
+  router.put("/:pid", async (req, res) => {
     try {
-      const productId = parseInt(req.params.pid);
-      await productManager.deleteProduct(productId);
+      const updatedProduct = await req.productService.updateProduct(
+        req.params.pid, 
+        req.body
+      );
       
-      await emitProductsUpdate();
-      res.json({ 
-        status: 'success',
-        message: 'Producto eliminado exitosamente' 
-      });
+      if (req.io) {
+        req.io.emit('productUpdated', updatedProduct);
+      }
+
+      res.json({ status: "success", payload: updatedProduct });
     } catch (error) {
-      res.status(error.message.includes('no encontrado') ? 404 : 500).json({ 
-        error: error.message 
-      });
+      console.error(`Error en PUT /api/products/${req.params.pid}:`, error.message);
+      res.status(400).json({ status: "error", message: error.message });
+    }
+  });
+
+  // DELETE /api/products/:pid
+  router.delete("/:pid", async (req, res) => {
+    try {
+      const deletedProduct = await req.productService.deleteProduct(req.params.pid);
+      
+      if (req.io) {
+        req.io.emit('productDeleted', req.params.pid);
+      }
+
+      res.json({ status: "success", payload: deletedProduct });
+    } catch (error) {
+      console.error(`Error en DELETE /api/products/${req.params.pid}:`, error.message);
+      res.status(400).json({ status: "error", message: error.message });
     }
   });
 
   return router;
-};
+}
