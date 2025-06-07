@@ -8,7 +8,7 @@ export function createProductsRouter() {
     try {
       const { limit = 10, page = 1, sort, query, availability } = req.query;
       
-      const result = await req.productService.getProducts({
+      const result = await req.productManager.getProducts({
         limit: parseInt(limit),
         page: parseInt(page),
         sort,

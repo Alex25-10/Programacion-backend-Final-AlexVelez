@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 // Cargar variables de entorno
 dotenv.config();
 
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/ecommerce';
+const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://gaston25102000:Gaston2510@cluster0.cl9mbpm.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
 
 // Eventos de conexión mejorados
 mongoose.connection.on('connected', () => {
