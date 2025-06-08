@@ -66,19 +66,24 @@ class ProductManager {
   }
 
   _getSortOption(sort) {
-    if (!sort) return { createdAt: -1 }; // Orden por defecto
-    
-    const sortField = sort.replace(/^-/, '');
-    const sortOrder = sort.startsWith('-') ? -1 : 1;
-    
-    // Validación de campos para ordenamiento
-    const validSortFields = ['title', 'price', 'stock', 'category'];
-    if (!validSortFields.includes(sortField)) {
-      throw new Error(`Campo no válido para ordenar: ${sortField}`);
-    }
-    
-    return { [sortField]: sortOrder };
+  if (!sort) return { createdAt: -1 }; // Orden por defecto
+  
+  // Si sort es "asc" o "desc", ordenamos por precio
+  if (sort === 'asc' || sort === 'desc') {
+    return { price: sort === 'asc' ? 1 : -1 };
   }
+  
+  // Si es otro campo (title, stock, etc.)
+  const sortField = sort.replace(/^-/, '');
+  const sortOrder = sort.startsWith('-') ? -1 : 1;
+  
+  const validSortFields = ['title', 'price', 'stock', 'category'];
+  if (!validSortFields.includes(sortField)) {
+    throw new Error(`Campo no válido para ordenar: ${sortField}`);
+  }
+  
+  return { [sortField]: sortOrder };
+}
 
   _buildPaginationLink(limit, page, sort, query, availability) {
     const params = new URLSearchParams();

@@ -31,6 +31,9 @@ export function createCartsRouter() {
     const { cid } = req.params;
     try {
       const cart = await req.cartManager.getCartById(cid);
+      if (!cart) {
+        return res.status(404).json({ status: 'error', message: 'Carrito no encontrado' });
+      }
       const populatedCart = await req.cartManager.populateProducts(cart);
       
       res.render('cart', {
@@ -102,7 +105,7 @@ export function createCartsRouter() {
     }
   });
 
-  // Agregar producto al carrito (nueva ruta)
+  // Agregar producto al carrito
   router.post('/:cid/products/:pid', async (req, res) => {
     const { cid, pid } = req.params;
     const { quantity = 1 } = req.body;
@@ -136,6 +139,100 @@ export function createCartsRouter() {
       });
     }
   });
+  router.put('/:cid', async (req, res) => {
+  const { cid } = req.params;
+  const { products } = req.body; // Espera un array de productos
+  
+  try {
+    const cart = await CartModel.findById(cid);
+    if (!cart) {
+      return res.status(404).json({ status: 'error', message: 'Carrito no encontrado' });
+    }
+
+    // Validar que products sea un array
+    if (!Array.isArray(products)) {
+      return res.status(400).json({ status: 'error', message: 'Formato inválido' });
+    }
+
+    // Actualizar todos los productos
+    cart.products = products;
+    await cart.save();
+
+    // Notificar actualización
+    if (req.io) {
+      req.io.emit('cartReplaced', { cartId: cid });
+    }
+
+    res.json({ 
+      status: 'success', 
+      payload: await req.cartManager.populateProducts(cart) 
+    });
+  } catch (error) {
+    console.error(`Error en PUT /api/carts/${cid}:`, error.message);
+    res.status(500).json({ 
+      status: 'error', 
+      message: error.message 
+    });
+  }
+});
+
+router.put('/:cid/products/:pid', async (req, res) => {
+  const { cid, pid } = req.params;
+  const { quantity } = req.body;
+  
+  try {
+    // Validar cantidad
+    if (!quantity || isNaN(quantity)) {
+      return res.status(400).json({ 
+        status: 'error', 
+        message: 'Cantidad inválida' 
+      });
+    }
+
+    const cart = await CartModel.findById(cid);
+    if (!cart) {
+      return res.status(404).json({ status: 'error', message: 'Carrito no encontrado' });
+    }
+
+    // Buscar producto
+    const productIndex = cart.products.findIndex(
+      p => p.product.toString() === pid
+    );
+
+    if (productIndex === -1) {
+      return res.status(404).json({ 
+        status: 'error', 
+        message: 'Producto no encontrado en el carrito' 
+      });
+    }
+
+    // Actualizar cantidad
+    cart.products[productIndex].quantity = quantity;
+    await cart.save();
+
+    // Notificar actualización
+    if (req.io) {
+      req.io.emit('cartUpdated', { 
+        cartId: cid, 
+        action: 'update', 
+        productId: pid,
+        quantity 
+      });
+    }
+
+    res.json({ 
+      status: 'success', 
+      payload: await req.cartManager.populateProducts(cart) 
+    });
+  } catch (error) {
+    console.error(`Error en PUT /api/carts/${cid}/products/${pid}:`, error.message);
+    res.status(500).json({ 
+      status: 'error', 
+      message: error.message 
+    });
+  }
+});
+
 
   return router;
 }

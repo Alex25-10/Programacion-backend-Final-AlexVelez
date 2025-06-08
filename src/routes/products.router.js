@@ -1,105 +1,71 @@
-import express from 'express';
+import { Router } from 'express';
 
-export function createProductsRouter() {
-  const router = express.Router();
+export const createProductsRouter = () => {
+  const router = Router();
 
-  // GET /api/products con paginación, filtros y ordenamiento
-  router.get("/", async (req, res) => {
+  // Obtener productos con filtros, paginación y ordenamiento
+  router.get('/', async (req, res) => {
     try {
       const { limit = 10, page = 1, sort, query, availability } = req.query;
-      
       const result = await req.productManager.getProducts({
         limit: parseInt(limit),
         page: parseInt(page),
         sort,
         query,
         availability,
-        baseUrl: `${req.protocol}://${req.get('host')}${req.originalUrl.split('?')[0]}`
+        baseUrl: '/api/products'
       });
-
-      // Emitir evento de actualización si es necesario
-      if (req.io && (query || availability)) {
-        req.io.emit('productsUpdated', result.payload);
-      }
-
-      res.json({
-        status: 'success',
-        ...result
-      });
+      res.json(result);
     } catch (error) {
-      console.error("Error en GET /api/products:", error.message);
-      res.status(500).json({ 
-        status: "error", 
-        message: process.env.NODE_ENV === 'development' ? error.message : 'Error al obtener productos'
-      });
+      console.error('Error GET /api/products:', error);
+      res.status(500).json({ error: 'Error al obtener productos' });
     }
   });
 
-  // GET /api/products/:pid
-  router.get("/:pid", async (req, res) => {
+  // Obtener producto por ID
+  router.get('/:pid', async (req, res) => {
     try {
-      const product = await req.productService.getProductById(req.params.pid);
-      if (!product) {
-        return res.status(404).json({ status: "error", message: "Producto no encontrado" });
-      }
-      res.json({ status: "success", payload: product });
+      const product = await req.productManager.getProductById(req.params.pid);
+      if (!product) return res.status(404).json({ error: 'Producto no encontrado' });
+      res.json(product);
     } catch (error) {
-      console.error(`Error en GET /api/products/${req.params.pid}:`, error.message);
-      res.status(400).json({ status: "error", message: error.message });
+      res.status(500).json({ error: 'Error al obtener el producto' });
     }
   });
 
-  // POST /api/products
-  router.post("/", async (req, res) => {
+  // Crear producto
+  router.post('/', async (req, res) => {
     try {
-      const newProduct = await req.productService.addProduct(req.body);
-      
-      // Notificar a todos los clientes via WebSocket
-      if (req.io) {
-        req.io.emit('newProduct', newProduct);
-      }
-
-      res.status(201).json({ status: "success", payload: newProduct });
+      const newProduct = await req.productManager.addProduct(req.body);
+      req.io.emit('productoAgregado', newProduct); // Notifica por WebSocket
+      res.status(201).json(newProduct);
     } catch (error) {
-      console.error("Error en POST /api/products:", error.message);
-      res.status(400).json({ status: "error", message: error.message });
+      res.status(400).json({ error: error.message });
     }
   });
 
-  // PUT /api/products/:pid
-  router.put("/:pid", async (req, res) => {
+  // Actualizar producto
+  router.put('/:pid', async (req, res) => {
     try {
-      const updatedProduct = await req.productService.updateProduct(
-        req.params.pid, 
-        req.body
-      );
-      
-      if (req.io) {
-        req.io.emit('productUpdated', updatedProduct);
-      }
-
-      res.json({ status: "success", payload: updatedProduct });
+      const updatedProduct = await req.productManager.updateProduct(req.params.pid, req.body);
+      if (!updatedProduct) return res.status(404).json({ error: 'Producto no encontrado' });
+      res.json(updatedProduct);
     } catch (error) {
-      console.error(`Error en PUT /api/products/${req.params.pid}:`, error.message);
-      res.status(400).json({ status: "error", message: error.message });
+      res.status(400).json({ error: error.message });
     }
   });
 
-  // DELETE /api/products/:pid
-  router.delete("/:pid", async (req, res) => {
+  // Eliminar producto
+  router.delete('/:pid', async (req, res) => {
     try {
-      const deletedProduct = await req.productService.deleteProduct(req.params.pid);
-      
-      if (req.io) {
-        req.io.emit('productDeleted', req.params.pid);
-      }
-
-      res.json({ status: "success", payload: deletedProduct });
+      const deleted = await req.productManager.deleteProduct(req.params.pid);
+      if (!deleted) return res.status(404).json({ error: 'Producto no encontrado' });
+      req.io.emit('productoEliminado', req.params.pid); // Notifica por WebSocket
+      res.json({ status: 'success', message: 'Producto eliminado' });
     } catch (error) {
-      console.error(`Error en DELETE /api/products/${req.params.pid}:`, error.message);
-      res.status(400).json({ status: "error", message: error.message });
+      res.status(500).json({ error: error.message });
     }
   });
 
   return router;
-}
+};
