@@ -38,6 +38,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride('_method'));
 app.use(express.static(path.join(__dirname, 'public')));
 
+
 // Configuración mejorada de Handlebars
 const hbs = engine({
   helpers: {

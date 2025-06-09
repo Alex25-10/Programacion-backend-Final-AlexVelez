@@ -11,11 +11,11 @@ class ProductService {
   }) {
     const filter = { status: true };
 
-    // Filtros mejorados
+    
     if (query) filter.category = { $regex: new RegExp(query, 'i') };
     if (availability === 'disponible') filter.stock = { $gt: 0 };
 
-    // Opciones de paginación
+    
     const options = {
       limit: parseInt(limit),
       page: parseInt(page),
@@ -27,7 +27,7 @@ class ProductService {
     try {
       const result = await ProductModel.paginate(filter, options);
 
-      // Generación de links
+      
       const buildLink = (targetPage) => {
         const params = new URLSearchParams({ limit, page: targetPage });
         if (sort) params.append('sort', sort);
@@ -64,5 +64,5 @@ class ProductService {
   }
 }
 
-// Export nombrado
+
 export const productService = new ProductService();

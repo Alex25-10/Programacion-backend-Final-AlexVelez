@@ -3,12 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <title>Productos</title>
-  <link rel="stylesheet" href="/css/{{style}}">
+  <link rel="stylesheet" href="/src/public/css/home.css">
 </head>
 <body>
-  <h1>🛍️ Lista de Productos</h1>
+  <header>
+    <h1>🛍️ Lista de Productos</h1>
+    <div style="text-align: right;">
+      <a href="/carts/{{userCartId}}" class="go-cart-btn">🛒 Ver Carrito</a>
+    </div>
+  </header>
 
-  <!-- 🔍 Formulario de Filtros -->
   <form method="GET" action="/">
     <label for="query">Buscar:</label>
     <input type="text" name="query" id="query" value="{{filters.query}}" placeholder="Nombre o categoría">
@@ -34,21 +38,29 @@
 
   <hr>
 
-  <!-- 📦 Lista de Productos -->
-  <ul>
-    {{#each products}}
-      <li>
-        <h3>{{title}}</h3>
-        <p><strong>Precio:</strong> ${{price}}</p>
-        <p><strong>Stock:</strong> {{stock}}</p>
-        <p><strong>Categoría:</strong> {{category}}</p>
-        <a href="/products/{{_id}}">Ver detalle</a>
-      </li>
-      <hr>
-    {{/each}}
-  </ul>
+  {{#if products.length}}
+    <ul class="product-list">
+      {{#each products}}
+        <li class="product-card">
+          <h3>{{title}}</h3>
+          <p><strong>Precio:</strong> ${{price}}</p>
+          <p><strong>Stock:</strong> {{stock}}</p>
+          <p><strong>Categoría:</strong> {{category}}</p>
+          <a href="/products/{{_id}}">Ver detalle</a>
+          <form method="POST" action="/api/carts/{{../userCartId}}/products/{{_id}}">
+            <button type="submit">Agregar al carrito</button>
+          </form>
+        </li>
+        <hr>
+      {{/each}}
+    </ul>
+  {{else}}
+    <div class="empty-result">
+      <h4>No se encontraron productos con esos filtros.</h4>
+      <a href="/" class="go-back-btn">Volver al catálogo completo</a>
+    </div>
+  {{/if}}
 
-  <!-- 📄 Paginación -->
   <div class="pagination">
     {{#if pagination.hasPrevPage}}
       <a href="{{pagination.prevLink}}">⬅ Página anterior</a>
@@ -60,6 +72,5 @@
       <a href="{{pagination.nextLink}}">Página siguiente ➡</a>
     {{/if}}
   </div>
-
 </body>
 </html>

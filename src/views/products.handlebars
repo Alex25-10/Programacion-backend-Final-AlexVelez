@@ -1,3 +1,4 @@
+<link rel="stylesheet" href="/src/public/css/product.css">
 <h1>{{product.title}}</h1>
 
 <div class="product-detail">
@@ -23,7 +24,7 @@
   async function agregarAlCarrito() {
     let cid = localStorage.getItem("cid");
 
-    // Si no existe carrito, lo creamos
+    
     if (!cid) {
       try {
         const crearCarrito = await fetch("/api/carts", { method: "POST" });
@@ -42,7 +43,7 @@
       }
     }
 
-    // Agregamos el producto al carrito
+    
     try {
       const response = await fetch(`/api/carts/${cid}/products/{{product._id}}`, {
         method: "POST"

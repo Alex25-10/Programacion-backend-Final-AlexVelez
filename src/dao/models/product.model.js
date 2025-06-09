@@ -46,5 +46,5 @@ const productSchema = new mongoose.Schema({
 
 productSchema.plugin(mongoosePaginate);
 
-// Export nombrado
+
 export const ProductModel = mongoose.models.Product || mongoose.model('Product', productSchema);

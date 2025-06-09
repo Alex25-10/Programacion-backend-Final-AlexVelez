@@ -15,7 +15,7 @@ class ProductManager {
     try {
       const filter = {};
       
-      // Filtros mejorados con búsqueda por texto
+      
       if (query) {
         filter.$or = [
           { category: { $regex: query, $options: 'i' } },
@@ -23,7 +23,7 @@ class ProductManager {
         ];
       }
 
-      // Filtro de disponibilidad mejorado
+      
       if (availability === 'available') {
         filter.status = true;
         filter.stock = { $gt: 0 };
@@ -66,14 +66,14 @@ class ProductManager {
   }
 
   _getSortOption(sort) {
-  if (!sort) return { createdAt: -1 }; // Orden por defecto
+  if (!sort) return { createdAt: -1 }; 
   
-  // Si sort es "asc" o "desc", ordenamos por precio
+  
   if (sort === 'asc' || sort === 'desc') {
     return { price: sort === 'asc' ? 1 : -1 };
   }
   
-  // Si es otro campo (title, stock, etc.)
+  
   const sortField = sort.replace(/^-/, '');
   const sortOrder = sort.startsWith('-') ? -1 : 1;
   
@@ -117,7 +117,7 @@ class ProductManager {
 
   async addProduct(productData) {
     try {
-      // Validación de campos requeridos
+      
       const requiredFields = ['title', 'description', 'code', 'price', 'stock', 'category'];
       const missingFields = requiredFields.filter(field => !productData[field]);
       
@@ -125,7 +125,7 @@ class ProductManager {
         throw new Error(`Faltan campos requeridos: ${missingFields.join(', ')}`);
       }
 
-      // Validación de código único
+      
       const existingProduct = await this.model.findOne({ code: productData.code });
       if (existingProduct) {
         throw new Error('El código de producto ya existe');
@@ -136,7 +136,7 @@ class ProductManager {
         status: productData.stock > 0
       });
 
-      await product.validate(); // Validación explícita
+      await product.validate(); 
       return await product.save();
     } catch (error) {
       throw new Error(`Error al crear producto: ${error.message}`);
@@ -149,7 +149,7 @@ class ProductManager {
         throw new Error('ID de producto no válido');
       }
 
-      // Evitar actualización de código si está presente
+      
       if (updateData.code) {
         const existingProduct = await this.model.findOne({ 
           code: updateData.code, 

@@ -3,7 +3,7 @@ import { Router } from 'express';
 export const createProductsRouter = () => {
   const router = Router();
 
-  // Obtener productos con filtros, paginación y ordenamiento
+  
   router.get('/', async (req, res) => {
     try {
       const { limit = 10, page = 1, sort, query, availability } = req.query;
@@ -22,7 +22,7 @@ export const createProductsRouter = () => {
     }
   });
 
-  // Obtener producto por ID
+  
   router.get('/:pid', async (req, res) => {
     try {
       const product = await req.productManager.getProductById(req.params.pid);
@@ -33,18 +33,18 @@ export const createProductsRouter = () => {
     }
   });
 
-  // Crear producto
+  
   router.post('/', async (req, res) => {
     try {
       const newProduct = await req.productManager.addProduct(req.body);
-      req.io.emit('productoAgregado', newProduct); // Notifica por WebSocket
+      req.io.emit('productoAgregado', newProduct); 
       res.status(201).json(newProduct);
     } catch (error) {
       res.status(400).json({ error: error.message });
     }
   });
 
-  // Actualizar producto
+  
   router.put('/:pid', async (req, res) => {
     try {
       const updatedProduct = await req.productManager.updateProduct(req.params.pid, req.body);
@@ -55,7 +55,7 @@ export const createProductsRouter = () => {
     }
   });
 
-  // Eliminar producto
+  
   router.delete('/:pid', async (req, res) => {
     try {
       const deleted = await req.productManager.deleteProduct(req.params.pid);

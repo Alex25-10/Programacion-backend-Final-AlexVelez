@@ -2,12 +2,12 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 
-// Cargar variables de entorno
+
 dotenv.config();
 
 const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://gaston25102000:Gaston2510@cluster0.cl9mbpm.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
 
-// Eventos de conexión mejorados
+
 mongoose.connection.on('connected', () => {
   console.log('🟢 MongoDB conectado exitosamente!');
 });
@@ -21,7 +21,7 @@ mongoose.connection.on('disconnected', () => {
   setTimeout(connectDB, 5000);
 });
 
-// Conexión principal con verificación de singleton
+
 let isConnecting = false;
 
 export const connectDB = async () => {
@@ -46,7 +46,7 @@ export const connectDB = async () => {
     
     console.log('✅ Conexión a MongoDB establecida');
 
-    // Manejo de cierre de conexión
+    
     process.on('SIGINT', async () => {
       await mongoose.connection.close();
       console.log('✋ Conexión a MongoDB cerrada por terminación de la app');
@@ -55,14 +55,14 @@ export const connectDB = async () => {
 
   } catch (error) {
     console.error('❌ Error crítico al conectar a MongoDB:', error.message);
-    // Reintentar conexión después de 5 segundos
+    
     setTimeout(connectDB, 5000);
   } finally {
     isConnecting = false;
   }
 };
 
-// Verificación de estado mejorada
+
 export const checkDBStatus = () => {
   const states = {
     0: 'disconnected',

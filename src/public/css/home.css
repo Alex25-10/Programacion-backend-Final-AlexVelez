@@ -1,24 +1,145 @@
 body {
   font-family: Arial, sans-serif;
   padding: 20px;
+  background-color: #f9f9f9;
+  color: #333;
 }
 
-.container {
-  max-width: 800px;
-  margin: auto;
+h1 {
+  text-align: center;
+  margin-bottom: 30px;
 }
 
-ul {
-  list-style: none;
+form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+
+form label {
+  margin-right: 5px;
+}
+
+form input,
+form select {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+form button {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+form button:hover {
+  background-color: #45a049;
+}
+
+a {
+  color: #2196F3;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.product-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
   padding: 0;
 }
 
-li {
-  margin-bottom: 10px;
+.product-card {
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 16px;
+  list-style: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-button {
-  padding: 8px 16px;
+.product-card h3 {
+  margin-top: 0;
+  color: #333;
+}
+
+.product-card p {
+  margin: 6px 0;
+}
+
+.product-card a {
+  display: inline-block;
+  margin-top: 8px;
+  color: #007bff;
+}
+
+.product-card form {
   margin-top: 10px;
+}
+
+.product-card button {
+  background-color: #2196F3;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
   cursor: pointer;
+}
+
+.product-card button:hover {
+  background-color: #1976D2;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-top: 40px;
+}
+
+.empty-result {
+  text-align: center;
+  background-color: #fff3cd;
+  padding: 30px;
+  border-radius: 8px;
+  border: 1px solid #ffeeba;
+  max-width: 500px;
+  margin: 40px auto;
+}
+
+.go-cart-btn {
+  background-color: #FF9800;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.go-cart-btn:hover {
+  background-color: #e68900;
+}
+
+.go-back-btn {
+  display: inline-block;
+  margin-top: 15px;
+  background-color: #607D8B;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 4px;
+}
+
+.go-back-btn:hover {
+  background-color: #546E7A;
 }

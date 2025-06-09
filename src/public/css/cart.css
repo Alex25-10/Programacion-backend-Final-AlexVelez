@@ -1,21 +1,28 @@
-/* Estilos generales */
-.cart-container {
-  max-width: 1200px;
-  margin: 0 auto;
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f9f9f9;
+  color: #333;
   padding: 20px;
-  font-family: 'Arial', sans-serif;
+}
+
+.cart-container {
+  max-width: 1000px;
+  margin: auto;
+  background-color: white;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 }
 
 .cart-title {
   text-align: center;
-  color: #333;
+  font-size: 2rem;
   margin-bottom: 30px;
 }
 
-/* Tabla de productos */
 .cart-table-container {
   overflow-x: auto;
-  margin-bottom: 30px;
 }
 
 .cart-table {
@@ -51,24 +58,29 @@
 }
 
 .product-name {
-  font-weight: 500;
+  font-weight: 600;
 }
 
-/* Formularios y botones */
 .quantity-form {
   display: flex;
   align-items: center;
+  gap: 10px;
 }
 
 .quantity-input {
   width: 60px;
   padding: 6px;
   text-align: center;
-  border: 1px solid #ddd;
+  border: 1px solid #ccc;
   border-radius: 4px;
 }
 
-.update-btn, .delete-btn, .clear-cart-btn, .checkout-btn, .shop-btn, .continue-btn {
+.update-btn,
+.delete-btn,
+.clear-cart-btn,
+.checkout-btn,
+.shop-btn,
+.continue-btn {
   padding: 8px 16px;
   border: none;
   border-radius: 4px;
@@ -80,7 +92,6 @@
 .update-btn {
   background-color: #4CAF50;
   color: white;
-  margin-left: 8px;
 }
 
 .delete-btn {
@@ -91,43 +102,12 @@
 .clear-cart-btn {
   background-color: #ff9800;
   color: white;
-  margin-right: 10px;
 }
 
 .checkout-btn {
   background-color: #2196F3;
   color: white;
   text-decoration: none;
-  display: inline-block;
-  padding: 8px 16px;
-}
-
-/* Resumen del carrito */
-.cart-summary {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 20px;
-  padding-top: 20px;
-  border-top: 2px solid #eee;
-}
-
-.cart-total span {
-  color: #4CAF50;
-  font-size: 1.2em;
-}
-
-/* Carrito vacío */
-.empty-cart-message {
-  text-align: center;
-  padding: 40px;
-  background-color: #f8f9fa;
-  border-radius: 8px;
-}
-
-.empty-cart-message h4 {
-  color: #666;
-  margin-bottom: 20px;
 }
 
 .shop-btn {
@@ -139,48 +119,76 @@
   display: inline-block;
 }
 
-/* Botón continuar comprando */
-.continue-shopping {
-  margin-top: 30px;
-  text-align: center;
-}
-
 .continue-btn {
   color: #2196F3;
   text-decoration: none;
   font-size: 16px;
 }
 
-/* Efectos hover */
-.update-btn:hover, .delete-btn:hover, 
-.clear-cart-btn:hover, .checkout-btn:hover, 
+.update-btn:hover,
+.delete-btn:hover,
+.clear-cart-btn:hover,
+.checkout-btn:hover,
 .shop-btn:hover {
   opacity: 0.9;
   transform: translateY(-2px);
 }
 
-/* Responsive */
+.cart-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 2px solid #eee;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.cart-total span {
+  color: #4CAF50;
+  font-size: 1.4rem;
+  font-weight: bold;
+}
+
+.empty-cart-message {
+  text-align: center;
+  padding: 40px;
+  background-color: #fff3cd;
+  border-radius: 8px;
+  border: 1px solid #ffeeba;
+  margin: 30px auto;
+  max-width: 600px;
+}
+
+.empty-cart-message h4 {
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.continue-shopping {
+  margin-top: 30px;
+  text-align: center;
+}
+
 @media (max-width: 768px) {
-  .cart-table th, .cart-table td {
+  .cart-table th,
+  .cart-table td {
     padding: 8px;
   }
-  
+
   .product-info {
     flex-direction: column;
     align-items: flex-start;
   }
-  
+
   .product-image {
     margin-right: 0;
     margin-bottom: 8px;
   }
-  
+
   .cart-summary {
     flex-direction: column;
     align-items: flex-start;
-  }
-  
-  .cart-buttons {
-    margin-top: 15px;
   }
 }
