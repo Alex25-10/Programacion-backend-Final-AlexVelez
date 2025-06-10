@@ -4,64 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>🧙‍♂️ Mi App Mágica</title>
-  
+
   {{#if style}}
-    <link rel="stylesheet" href="/css/{{style}}">
+    <link rel="stylesheet" href="/src/public/css/{{style}}">
+  {{else}}
+    <link rel="stylesheet" href="/src/public/css/main.css">
   {{/if}}
-
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-      padding: 0;
-      background-color: #f9f9f9;
-      color: #333;
-    }
-
-    a {
-      text-decoration: none;
-      color: #007bff;
-    }
-
-    a:hover {
-      text-decoration: underline;
-    }
-
-    h1 {
-      color: #222;
-    }
-
-    button {
-      background-color: #007bff;
-      color: white;
-      border: none;
-      padding: 8px 12px;
-      cursor: pointer;
-      border-radius: 4px;
-    }
-
-    button:hover {
-      background-color: #0056b3;
-    }
-
-    ul {
-      list-style: none;
-      padding: 0;
-    }
-
-    li {
-      margin-bottom: 8px;
-    }
-
-    form {
-      display: inline;
-    }
-
-    .container {
-      max-width: 800px;
-      margin: auto;
-    }
-  </style>
 </head>
 <body>
   <div class="container">

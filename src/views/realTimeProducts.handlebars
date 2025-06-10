@@ -1,18 +1,19 @@
 <link rel="stylesheet" href="/src/public/css/realtime.css">
+
 <div class="container">
   <h1>Productos en Tiempo Real</h1>
   
-  <form id="addProductForm">
+  <form id="addProductForm" class="product-form">
     <input type="text" name="title" placeholder="Título" required>
     <input type="number" name="price" placeholder="Precio" min="0" required>
     <button type="submit">Agregar</button>
   </form>
 
-  <ul id="productsList">
+  <ul id="productsList" class="product-list">
     {{#each products}}
-      <li>
-        {{this.title}} - ${{this.price}}
-        <button onclick="deleteProduct('{{this.id}}')">Eliminar</button>
+      <li class="product-item">
+        <span>{{this.title}} - ${{this.price}}</span>
+        <button onclick="deleteProduct('{{this.id}}')" class="delete-btn">Eliminar</button>
       </li>
     {{/each}}
   </ul>

@@ -1,30 +1,30 @@
 <link rel="stylesheet" href="/src/public/css/product.css">
+
 <h1>{{product.title}}</h1>
 
 <div class="product-detail">
   {{#if product.thumbnails.[0]}}
-    <img src="{{product.thumbnails.[0]}}" alt="Imagen de {{product.title}}" width="200" />
+    <img src="{{product.thumbnails.[0]}}" alt="Imagen de {{product.title}}" class="product-image" />
   {{else}}
-    <img src="/placeholder.jpg" alt="Sin imagen disponible" width="200" />
+    <img src="/placeholder.jpg" alt="Sin imagen disponible" class="product-image" />
   {{/if}}
 
-  <ul>
+  <ul class="product-info">
     <li><strong>Precio:</strong> ${{product.price}}</li>
     <li><strong>Stock:</strong> {{product.stock}}</li>
     <li><strong>Categoría:</strong> {{product.category}}</li>
     <li><strong>Descripción:</strong> {{product.description}}</li>
   </ul>
 
-  <button onclick="agregarAlCarrito()">🛒 Agregar al carrito</button>
+  <button class="add-to-cart-btn" onclick="agregarAlCarrito()">🛒 Agregar al carrito</button>
 </div>
 
-<a href="/">⬅️ Volver al inicio</a>
+<a class="back-link" href="/">⬅️ Volver al inicio</a>
 
 <script>
   async function agregarAlCarrito() {
     let cid = localStorage.getItem("cid");
 
-    
     if (!cid) {
       try {
         const crearCarrito = await fetch("/api/carts", { method: "POST" });
@@ -43,7 +43,6 @@
       }
     }
 
-    
     try {
       const response = await fetch(`/api/carts/${cid}/products/{{product._id}}`, {
         method: "POST"
