@@ -13,7 +13,7 @@
     </div>
   </header>
 
-  <form method="GET" action="/">
+  <form method="GET" action="/api/products">
     <label for="query">Buscar:</label>
     <input type="text" name="query" id="query" value="{{filters.query}}" placeholder="Nombre o categoría">
 
@@ -21,18 +21,19 @@
     <select name="availability" id="availability">
       <option value="">Todas</option>
       <option value="available" {{#if (eq filters.availability "available")}}selected{{/if}}>Solo disponibles</option>
+      <option value="unavailable" {{#if (eq filters.availability "unavailable")}}selected{{/if}}>No disponibles</option>
     </select>
 
     <label for="sort">Ordenar por precio:</label>
     <select name="sort" id="sort">
       <option value="">Ninguno</option>
-      <option value="price" {{#if (eq filters.sort "price")}}selected{{/if}}>Ascendente</option>
-      <option value="-price" {{#if (eq filters.sort "-price")}}selected{{/if}}>Descendente</option>
+      <option value="asc" {{#if (eq filters.sort "asc")}}selected{{/if}}>Ascendente</option>
+      <option value="desc" {{#if (eq filters.sort "desc")}}selected{{/if}}>Descendente</option>
     </select>
 
     <button type="submit">Aplicar</button>
     {{#if hasFilters}}
-      <a href="/" style="margin-left: 10px;">Limpiar filtros</a>
+      <a href="/api/products" style="margin-left: 10px;">Limpiar filtros</a>
     {{/if}}
   </form>
 
@@ -57,7 +58,7 @@
   {{else}}
     <div class="empty-result">
       <h4>No se encontraron productos con esos filtros.</h4>
-      <a href="/" class="go-back-btn">Volver al catálogo completo</a>
+      <a href="/api/products" class="go-back-btn">Volver al catálogo completo</a>
     </div>
   {{/if}}
 

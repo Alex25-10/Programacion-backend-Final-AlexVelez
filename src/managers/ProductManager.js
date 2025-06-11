@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import { ProductModel } from '../dao/models/product.model.js';
 
 class ProductManager {
@@ -14,8 +15,7 @@ class ProductManager {
   } = {}) {
     try {
       const filter = {};
-      
-      
+
       if (query) {
         filter.$or = [
           { category: { $regex: query, $options: 'i' } },
@@ -23,7 +23,6 @@ class ProductManager {
         ];
       }
 
-      
       if (availability === 'available') {
         filter.status = true;
         filter.stock = { $gt: 0 };
@@ -66,24 +65,22 @@ class ProductManager {
   }
 
   _getSortOption(sort) {
-  if (!sort) return { createdAt: -1 }; 
-  
-  
-  if (sort === 'asc' || sort === 'desc') {
-    return { price: sort === 'asc' ? 1 : -1 };
+    if (!sort) return { createdAt: -1 };
+
+    if (sort === 'asc' || sort === 'desc') {
+      return { price: sort === 'asc' ? 1 : -1 };
+    }
+
+    const sortField = sort.replace(/^-/, '');
+    const sortOrder = sort.startsWith('-') ? -1 : 1;
+
+    const validSortFields = ['title', 'price', 'stock', 'category'];
+    if (!validSortFields.includes(sortField)) {
+      throw new Error(`Campo no válido para ordenar: ${sortField}`);
+    }
+
+    return { [sortField]: sortOrder };
   }
-  
-  
-  const sortField = sort.replace(/^-/, '');
-  const sortOrder = sort.startsWith('-') ? -1 : 1;
-  
-  const validSortFields = ['title', 'price', 'stock', 'category'];
-  if (!validSortFields.includes(sortField)) {
-    throw new Error(`Campo no válido para ordenar: ${sortField}`);
-  }
-  
-  return { [sortField]: sortOrder };
-}
 
   _buildPaginationLink(limit, page, sort, query, availability) {
     const params = new URLSearchParams();
@@ -92,7 +89,7 @@ class ProductManager {
     if (sort) params.append('sort', sort);
     if (query) params.append('query', query);
     if (availability) params.append('availability', availability);
-    
+
     return `/api/products?${params.toString()}`;
   }
 
@@ -105,7 +102,7 @@ class ProductManager {
       const product = await this.model.findById(pid)
         .select('-__v')
         .lean();
-      
+
       if (!product) {
         throw new Error('Producto no encontrado');
       }
@@ -117,15 +114,13 @@ class ProductManager {
 
   async addProduct(productData) {
     try {
-      
       const requiredFields = ['title', 'description', 'code', 'price', 'stock', 'category'];
       const missingFields = requiredFields.filter(field => !productData[field]);
-      
+
       if (missingFields.length > 0) {
         throw new Error(`Faltan campos requeridos: ${missingFields.join(', ')}`);
       }
 
-      
       const existingProduct = await this.model.findOne({ code: productData.code });
       if (existingProduct) {
         throw new Error('El código de producto ya existe');
@@ -136,7 +131,7 @@ class ProductManager {
         status: productData.stock > 0
       });
 
-      await product.validate(); 
+      await product.validate();
       return await product.save();
     } catch (error) {
       throw new Error(`Error al crear producto: ${error.message}`);
@@ -149,7 +144,6 @@ class ProductManager {
         throw new Error('ID de producto no válido');
       }
 
-      
       if (updateData.code) {
         const existingProduct = await this.model.findOne({ 
           code: updateData.code, 
@@ -187,7 +181,7 @@ class ProductManager {
 
       const deleted = await this.model.findByIdAndDelete(pid)
         .select('-__v -createdAt -updatedAt');
-      
+
       if (!deleted) {
         throw new Error('Producto no encontrado');
       }
