@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>{{product.title}}</title>
+  <link rel="stylesheet" href="/src/public/css/product.css" />
+</head>
+<body>
+  <h1>{{product.title}}</h1>
+  <img src="{{product.thumbnails.[0]}}" alt="{{product.title}}" width="200" />
+
+  <p><strong>Descripción:</strong> {{product.description}}</p>
+  <p><strong>Precio:</strong> ${{product.price}}</p>
+  <p><strong>Stock:</strong> {{product.stock}}</p>
+  <p><strong>Categoría:</strong> {{product.category}}</p>
+
+  <button onclick="agregarAlCarrito('{{product._id}}')">🛒 Agregar al carrito</button>
+  <br /><br />
+  <a href="/products">⬅ Volver al catálogo</a>
+
+  <script>
+    async function agregarAlCarrito(pid) {
+      let cid = localStorage.getItem("cid");
+      if (!cid) {
+        const res = await fetch("/api/carts", { method: "POST" });
+        const data = await res.json();
+        cid = data.cart._id;
+        localStorage.setItem("cid", cid);
+      }
+
+      try {
+        const res = await fetch(`/api/carts/${cid}/products/${pid}`, { method: "POST" });
+        const result = await res.json();
+        if (result.status === "success") {
+          alert("Producto agregado al carrito 🎉");
+        } else {
+          alert("Error: " + result.message);
+        }
+      } catch (err) {
+        alert("Error al agregar al carrito");
+      }
+    }
+  </script>
+</body>
+</html>

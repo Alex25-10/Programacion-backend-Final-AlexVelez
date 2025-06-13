@@ -1,92 +1,100 @@
-<link rel="stylesheet" href="/src/public/css/cart.css">
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Carrito</title>
+  <link rel="stylesheet" href="/src/public/css/cart.css">
+</head>
+<body>
+  <div class="cart-container">
+    <h1 class="cart-title">🛒 Carrito ID: {{cartId}}</h1>
 
-<div class="cart-container">
-  <h1 class="cart-title">🛒 Carrito ID: {{cartId}}</h1>
-
-  {{#if products.length}}
-    <div class="cart-table-container">
-      <table class="cart-table">
-        <thead>
-          <tr>
-            <th>Producto</th>
-            <th>Precio</th>
-            <th>Cantidad</th>
-            <th>Subtotal</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {{#each products}}
+    {{#if products.length}}
+      <div class="cart-table-container">
+        <table class="cart-table">
+          <thead>
             <tr>
-              <td class="product-info">
-                <img src="{{this.product.thumbnail.[0]}}" alt="{{this.product.title}}" class="product-image">
-                <span class="product-name">{{this.product.title}}</span>
-              </td>
-              <td class="product-price">${{this.product.price}}</td>
-              <td class="product-quantity">
-                <form action="/api/carts/{{../cartId}}/products/{{this.product._id}}" method="POST" class="quantity-form" data-method="PUT">
-                  <input type="number" name="quantity" value="{{this.quantity}}" min="1" class="quantity-input">
-                  <button type="submit" class="update-btn">✓</button>
-                </form>
-              </td>
-              <td class="product-subtotal">${{multiply this.product.price this.quantity}}</td>
-              <td class="product-actions">
-                <form action="/api/carts/{{../cartId}}/products/{{this.product._id}}?_method=DELETE" method="POST">
-                  <button type="submit" class="delete-btn">Eliminar</button>
-                </form>
-              </td>
+              <th>Producto</th>
+              <th>Precio</th>
+              <th>Cantidad</th>
+              <th>Subtotal</th>
+              <th>Acciones</th>
             </tr>
-          {{/each}}
-        </tbody>
-      </table>
-    </div>
-
-    <div class="cart-summary">
-      <h3 class="cart-total">Total: <span>${{calcTotal products}}</span></h3>
-      <div class="cart-buttons">
-        <form action="/api/carts/{{cartId}}?_method=DELETE" method="POST">
-          <button type="submit" class="clear-cart-btn">Vaciar Carrito</button>
-        </form>
-        <a href="/checkout" class="checkout-btn">Finalizar Compra</a>
+          </thead>
+          <tbody>
+            {{#each products}}
+              <tr>
+                <td class="product-info">
+                  <img src="{{this.product.thumbnail.[0]}}" alt="{{this.product.title}}" class="product-image">
+                  <span class="product-name">{{this.product.title}}</span>
+                </td>
+                <td class="product-price">${{this.product.price}}</td>
+                <td class="product-quantity">
+                  <form action="/api/carts/{{../cartId}}/products/{{this.product._id}}" method="POST" class="quantity-form" data-method="PUT">
+                    <input type="number" name="quantity" value="{{this.quantity}}" min="1" class="quantity-input">
+                    <button type="submit" class="update-btn">✓</button>
+                  </form>
+                </td>
+                <td class="product-subtotal">${{multiply this.product.price this.quantity}}</td>
+                <td class="product-actions">
+                  <form action="/api/carts/{{../cartId}}/products/{{this.product._id}}?_method=DELETE" method="POST">
+                    <button type="submit" class="delete-btn">Eliminar</button>
+                  </form>
+                </td>
+              </tr>
+            {{/each}}
+          </tbody>
+        </table>
       </div>
-    </div>
 
-    <div class="continue-shopping">
-      <a href="/products" class="continue-btn">← Seguir comprando</a>
-    </div>
-  {{else}}
-    <div class="empty-cart-message">
-      <h4>Tu carrito está vacío ☹️</h4>
-      <a href="/products" class="shop-btn">Ir a comprar</a>
-    </div>
-  {{/if}}
-</div>
+      <div class="cart-summary">
+        <h3 class="cart-total">Total: <span>${{calcTotal products}}</span></h3>
+        <div class="cart-buttons">
+          <form action="/api/carts/{{cartId}}?_method=DELETE" method="POST">
+            <button type="submit" class="clear-cart-btn">Vaciar Carrito</button>
+          </form>
+          <a href="/checkout" class="checkout-btn">Finalizar Compra</a>
+        </div>
+      </div>
 
-<script>
-  document.querySelectorAll('.quantity-form').forEach(form => {
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const formData = new FormData(form);
-      const quantity = formData.get('quantity');
+      <div class="continue-shopping">
+        <a href="/api/products" class="continue-btn">← Seguir comprando</a>
+      </div>
+    {{else}}
+      <div class="empty-cart-message">
+        <h4>Tu carrito está vacío ☹️</h4>
+        <a href="/api/products" class="shop-btn">Ir a comprar</a>
+      </div>
+    {{/if}}
+  </div>
 
-      try {
-        const response = await fetch(form.action, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ quantity })
-        });
+  <script>
+    document.querySelectorAll('.quantity-form').forEach(form => {
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(form);
+        const quantity = formData.get('quantity');
 
-        if (response.ok) {
-          location.reload();
-        } else {
-          alert('Error al actualizar la cantidad');
+        try {
+          const response = await fetch(form.action, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ quantity })
+          });
+
+          if (response.ok) {
+            location.reload();
+          } else {
+            alert('Error al actualizar la cantidad');
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          alert('Error al conectar con el servidor');
         }
-      } catch (error) {
-        console.error('Error:', error);
-        alert('Error al conectar con el servidor');
-      }
+      });
     });
-  });
-</script>
+  </script>
+</body>
+</html>

@@ -13,13 +13,15 @@
     </div>
   </header>
 
-  <form method="GET" action="/api/products">
+<form method="GET" action="/products">
+
+
     <label for="query">Buscar:</label>
     <input type="text" name="query" id="query" value="{{filters.query}}" placeholder="Nombre o categoría">
 
     <label for="availability">Disponibilidad:</label>
     <select name="availability" id="availability">
-      <option value="">Todas</option>
+      <option value="all" {{#if (eq filters.availability "all")}}selected{{/if}}>Todas</option>
       <option value="available" {{#if (eq filters.availability "available")}}selected{{/if}}>Solo disponibles</option>
       <option value="unavailable" {{#if (eq filters.availability "unavailable")}}selected{{/if}}>No disponibles</option>
     </select>
@@ -32,14 +34,18 @@
     </select>
 
     <button type="submit">Aplicar</button>
+
     {{#if hasFilters}}
-      <a href="/api/products" style="margin-left: 10px;">Limpiar filtros</a>
+    <a href="/products" style="margin-left: 10px;">Limpiar filtros</a>
+
     {{/if}}
   </form>
 
   <hr>
 
   {{#if products.length}}
+    <p>Total de productos: {{pagination.totalDocs}}</p>
+
     <ul class="product-list">
       {{#each products}}
         <li class="product-card">
@@ -47,7 +53,9 @@
           <p><strong>Precio:</strong> ${{price}}</p>
           <p><strong>Stock:</strong> {{stock}}</p>
           <p><strong>Categoría:</strong> {{category}}</p>
-          <a href="/products/{{_id}}">Ver detalle</a>
+          <a href="/products/{{this._id}}">Ver detalle</a>
+
+
           <form method="POST" action="/api/carts/{{../userCartId}}/products/{{_id}}">
             <button type="submit">Agregar al carrito</button>
           </form>
@@ -58,7 +66,9 @@
   {{else}}
     <div class="empty-result">
       <h4>No se encontraron productos con esos filtros.</h4>
-      <a href="/api/products" class="go-back-btn">Volver al catálogo completo</a>
+      <a href="/products" class="go-back-btn">Volver al catálogo completo</a>
+
+
     </div>
   {{/if}}
 

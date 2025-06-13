@@ -4,7 +4,7 @@ await connectDB();
 
 // 2. Importación de modelos
 import './dao/models/product.model.js';
-import './dao/models/carts.model.js'; // Asegúrate de tener este archivo
+import './dao/models/carts.model.js';
 
 // 3. Dependencias principales
 import express from 'express';
@@ -20,6 +20,7 @@ import { ProductManager } from './managers/ProductManager.js';
 import { CartManager } from './managers/CartManager.js';
 import { createProductsRouter } from './routes/products.router.js';
 import { createCartsRouter } from './routes/carts.router.js';
+import { productViewsRouter } from './routes/productViews.router.js';
 
 // Configuración de Express y rutas
 const __filename = fileURLToPath(import.meta.url);
@@ -32,11 +33,22 @@ const io = new Server(httpServer);
 const productManager = new ProductManager();
 const cartManager = new CartManager();
 
-// Middlewares
+// Middlewares generales
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride('_method'));
 app.use(express.static(path.join(__dirname, 'public')));
+
+// ✅ Middleware que agrega managers y socket a cada req
+app.use((req, res, next) => {
+  req.io = io;
+  req.productManager = productManager;
+  req.cartManager = cartManager;
+  next();
+});
+
+// Rutas de vistas
+app.use('/', productViewsRouter);
 
 // Configuración de Handlebars con helpers
 const hbs = engine({
@@ -100,14 +112,6 @@ io.on('connection', (socket) => {
       console.error('Error WS-cart:', error);
     }
   });
-});
-
-// Middleware para compartir dependencias
-app.use((req, res, next) => {
-  req.io = io;
-  req.productManager = productManager;
-  req.cartManager = cartManager;
-  next();
 });
 
 // Rutas API

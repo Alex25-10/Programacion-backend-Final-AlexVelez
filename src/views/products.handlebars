@@ -1,62 +1,75 @@
-<link rel="stylesheet" href="/src/public/css/product.css">
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Catálogo de Productos</title>
+  <link rel="stylesheet" href="../public/css/product.css" />
+</head>
+<body>
+  <h1>Catálogo de Productos</h1>
 
-<h1>{{product.title}}</h1>
+  <form method="GET" action="/products">
+    <input type="text" name="query" placeholder="Buscar por categoría" value="{{filters.query}}" />
+    <select name="availability">
+      <option value="">Disponibilidad</option>
+      <option value="true" {{#if (eq filters.availability "true")}}selected{{/if}}>Disponible</option>
+      <option value="false" {{#if (eq filters.availability "false")}}selected{{/if}}>No disponible</option>
+    </select>
+    <select name="sort">
+      <option value="">Ordenar por</option>
+      <option value="asc" {{#if (eq filters.sort "asc")}}selected{{/if}}>Menor precio</option>
+      <option value="desc" {{#if (eq filters.sort "desc")}}selected{{/if}}>Mayor precio</option>
+    </select>
+    <button type="submit">Filtrar</button>
+  </form>
 
-<div class="product-detail">
-  {{#if product.thumbnails.[0]}}
-    <img src="{{product.thumbnails.[0]}}" alt="Imagen de {{product.title}}" class="product-image" />
-  {{else}}
-    <img src="/placeholder.jpg" alt="Sin imagen disponible" class="product-image" />
-  {{/if}}
+  <div class="product-grid">
+    {{#each products}}
+      <div class="product-card">
+        <h3>{{this.title}}</h3>
+        <img src="{{this.thumbnails.[0]}}" alt="{{this.title}}" width="150" />
+        <p>Precio: ${{this.price}}</p>
+        <p>Stock: {{this.stock}}</p>
+        <a href="/products/{{this._id}}">Ver detalles</a>
+        <button onclick="agregarAlCarrito('{{this._id}}')">🛒 Agregar al carrito</button>
+      </div>
+    {{/each}}
+  </div>
 
-  <ul class="product-info">
-    <li><strong>Precio:</strong> ${{product.price}}</li>
-    <li><strong>Stock:</strong> {{product.stock}}</li>
-    <li><strong>Categoría:</strong> {{product.category}}</li>
-    <li><strong>Descripción:</strong> {{product.description}}</li>
-  </ul>
+  <nav>
+    {{#if pagination.hasPrevPage}}
+      <a href="{{pagination.prevLink}}">⬅️ Anterior</a>
+    {{/if}}
 
-  <button class="add-to-cart-btn" onclick="agregarAlCarrito()">🛒 Agregar al carrito</button>
-</div>
+    Página {{pagination.page}} de {{pagination.totalPages}}
 
-<a class="back-link" href="/">⬅️ Volver al inicio</a>
+    {{#if pagination.hasNextPage}}
+      <a href="{{pagination.nextLink}}">Siguiente ➡️</a>
+    {{/if}}
+  </nav>
 
-<script>
-  async function agregarAlCarrito() {
-    let cid = localStorage.getItem("cid");
+  <script>
+    async function agregarAlCarrito(pid) {
+      let cid = localStorage.getItem("cid");
+      if (!cid) {
+        const res = await fetch("/api/carts", { method: "POST" });
+        const data = await res.json();
+        cid = data.cart._id;
+        localStorage.setItem("cid", cid);
+      }
 
-    if (!cid) {
       try {
-        const crearCarrito = await fetch("/api/carts", { method: "POST" });
-        const carritoCreado = await crearCarrito.json();
-
-        if (carritoCreado.status === "success") {
-          cid = carritoCreado.cart._id;
-          localStorage.setItem("cid", cid);
+        const res = await fetch(`/api/carts/${cid}/products/${pid}`, { method: "POST" });
+        const result = await res.json();
+        if (result.status === "success") {
+          alert("Producto agregado al carrito 🎉");
         } else {
-          alert("No se pudo crear el carrito 😢");
-          return;
+          alert("Error: " + result.message);
         }
-      } catch (error) {
-        alert("Error al crear el carrito 😢");
-        return;
+      } catch (err) {
+        alert("Error al agregar al carrito");
       }
     }
-
-    try {
-      const response = await fetch(`/api/carts/${cid}/products/{{product._id}}`, {
-        method: "POST"
-      });
-
-      const data = await response.json();
-
-      if (data.status === "success") {
-        alert("Producto agregado al carrito 🎉");
-      } else {
-        alert("Error: " + data.message);
-      }
-    } catch (error) {
-      alert("Error al agregar al carrito 😢");
-    }
-  }
-</script>
+  </script>
+</body>
+</html>
