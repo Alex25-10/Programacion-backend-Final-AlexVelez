@@ -1,25 +1,10 @@
-import { Router } from 'express';
 import { ProductModel } from '../dao/models/product.model.js';
-import { getCartView } from '../controllers/views.controller.js';
-import { ProductManager } from '../managers/ProductManager.js';
-import mongoose from 'mongoose'
 
-
-const productManager = new ProductManager();
-export const productViewsRouter = Router();
-productViewsRouter.get('/', (req, res) => {
-  res.redirect('/products');
-});
-
-
-// 🟢 Ver carrito por ID
-productViewsRouter.get('/cart/:cid', getCartView);
-
-// 🟢 Ruta para listar productos con filtros y paginación
-productViewsRouter.get('/products', async (req, res) => {
+// Vista de listado de productos con filtros y paginación
+export const getAllProductsView = async (req, res) => {
   try {
     const { limit = 10, page = 1, sort, query, availability } = req.query;
-    const result = await productManager.getProducts({
+    const result = await req.productManager.getProducts({
       limit: parseInt(limit),
       page: parseInt(page),
       sort,
@@ -45,22 +30,19 @@ productViewsRouter.get('/products', async (req, res) => {
       filters: { query, sort, availability },
       hasFilters: !!(query || sort || availability),
       style: 'home.css',
-      userCartId: mongoose.Types.ObjectId.isValid(req.session?.user?.cart)
-  ? req.session.user.cart
-  : null
-
+      userCartId: req.session?.user?.cart || 'default'
     });
   } catch (error) {
-    console.error('Error en GET /products:', error);
+    console.error('Error en getAllProductsView:', error);
     res.status(500).render('error', {
       error: 'Error al cargar productos',
       details: process.env.NODE_ENV === 'development' ? error.message : null,
     });
   }
-});
+};
 
-// 🟢 Ruta para ver un solo producto por ID
-productViewsRouter.get('/products/:pid', async (req, res) => {
+// Vista de producto individual
+export const getSingleProductView = async (req, res) => {
   try {
     const pid = req.params.pid;
     const product = await ProductModel.findById(pid).lean();
@@ -77,10 +59,49 @@ productViewsRouter.get('/products/:pid', async (req, res) => {
       style: 'product.css'
     });
   } catch (error) {
-    console.error('Error en GET /products/:pid:', error);
+    console.error('Error en getSingleProductView:', error);
     res.status(500).render('error', {
       error: 'Error al buscar el producto',
       details: process.env.NODE_ENV === 'development' ? error.message : null,
     });
   }
-});
+};
+
+// Vista del carrito
+export const getCartView = async (req, res) => {
+  try {
+    const { cid } = req.params;
+
+    // Validar formato de ObjectId (24 caracteres hex)
+    if (!cid || cid.length !== 24) {
+      return res.status(400).render('error', {
+        error: 'ID de carrito inválido',
+        details: `El ID "${cid}" no tiene un formato válido.`,
+      });
+    }
+
+    const cart = await req.cartManager.getCartById(cid);
+
+    if (!cart) {
+      return res.status(404).render('error', {
+        error: 'Carrito no encontrado',
+        details: `No se encontró ningún carrito con ID ${cid}`,
+      });
+    }
+
+    const populatedCart = await req.cartManager.populateProducts(cart);
+
+    res.render('cart', {
+      cartId: populatedCart._id,
+      products: populatedCart.products,
+      style: 'cart.css'
+    });
+
+  } catch (error) {
+    console.error('Error en getCartView:', error);
+    res.status(500).render('error', {
+      error: 'Error al cargar el carrito',
+      details: process.env.NODE_ENV === 'development' ? error.message : null,
+    });
+  }
+};

@@ -5,11 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>🧙‍♂️ Mi App Mágica</title>
 
-  {{#if style}}
-    <link rel="stylesheet" href="/css/{{style}}">
-  {{else}}
-    <link rel="stylesheet" href="/src/public/css/main.css">
-  {{/if}}
+ {{#if style}}
+  <link rel="stylesheet" href="/css/{{style}}">
+{{else}}
+  <link rel="stylesheet" href="/css/main.css"> <!-- ✅ Ruta corregida -->
+{{/if}}
+
 </head>
 <body>
   <div class="container">

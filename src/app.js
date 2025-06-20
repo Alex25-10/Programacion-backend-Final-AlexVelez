@@ -8,6 +8,8 @@ import './dao/models/carts.model.js';
 
 // 3. Dependencias principales
 import express from 'express';
+import session from 'express-session';
+import MongoStore from 'connect-mongo';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import { engine } from 'express-handlebars';
@@ -39,6 +41,17 @@ app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride('_method'));
 app.use(express.static(path.join(__dirname, 'public')));
 
+// ✅ Sesiones persistentes en MongoDB Atlas
+app.use(session({
+  store: MongoStore.create({
+    mongoUrl: 'mongodb+srv://gaston25102000:Gaston2510@cluster0.cl9mbpm.mongodb.net/ecommerce?retryWrites=true&w=majority&appName=Cluster0',
+    ttl: 3600
+  }),
+  secret: 'mi-clave-secreta',
+  resave: false,
+  saveUninitialized: false
+}));
+
 // ✅ Middleware que agrega managers y socket a cada req
 app.use((req, res, next) => {
   req.io = io;
@@ -47,10 +60,19 @@ app.use((req, res, next) => {
   next();
 });
 
-// Rutas de vistas
-app.use('/', productViewsRouter);
+// ✅ Middleware que crea carrito si no hay
+app.use(async (req, res, next) => {
+  if (!req.session.user) req.session.user = {};
 
-// Configuración de Handlebars con helpers
+  if (!req.session.user.cart || req.session.user.cart === 'default') {
+    const newCart = await req.cartManager.createCart();
+    req.session.user.cart = newCart._id.toString();
+  }
+
+  next();
+});
+
+// ✅ Vistas con Handlebars y helpers
 const hbs = engine({
   helpers: {
     multiply: (a, b) => a * b,
@@ -68,7 +90,14 @@ app.engine('handlebars', hbs);
 app.set('view engine', 'handlebars');
 app.set('views', path.join(__dirname, 'views'));
 
-// WebSocket
+// ✅ Rutas de vistas
+app.use('/', productViewsRouter);
+
+// ✅ Rutas API
+app.use('/api/products', createProductsRouter());
+app.use('/api/carts', createCartsRouter());
+
+// ✅ WebSocket
 io.on('connection', (socket) => {
   console.log('¡Cliente conectado! 🧙‍♂️');
 
@@ -114,59 +143,7 @@ io.on('connection', (socket) => {
   });
 });
 
-// Rutas API
-app.use('/api/products', createProductsRouter());
-app.use('/api/carts', createCartsRouter());
-
-// Vista principal: home.handlebars con filtros
-app.get('/', async (req, res) => {
-  try {
-    const { limit = 10, page = 1, sort, query, availability } = req.query;
-    const result = await productManager.getProducts({
-      limit: parseInt(limit),
-      page: parseInt(page),
-      sort,
-      query,
-      availability,
-    });
-
-    res.render('home', {
-      products: result.payload,
-      pagination: result,
-      filters: { query, sort, availability },
-      style: 'home.css',
-      user: req.user || null,
-    });
-  } catch (error) {
-    console.error('Error GET /:', error);
-    res.status(500).render('error', {
-      error: 'Error al cargar productos',
-      details: process.env.NODE_ENV === 'development' ? error.message : null,
-    });
-  }
-});
-
-// Vista de carrito
-app.get('/carts/:cid', async (req, res) => {
-  try {
-    const cart = await cartManager.getCartById(req.params.cid);
-    const populatedCart = await cartManager.populateProducts(cart);
-
-    res.render('cart', {
-      cartId: req.params.cid,
-      products: populatedCart.products,
-      style: 'cart.css',
-    });
-  } catch (error) {
-    console.error(`Error en GET /carts/${req.params.cid}:`, error);
-    res.status(500).render('error', {
-      error: 'Error al cargar el carrito',
-      details: process.env.NODE_ENV === 'development' ? error.message : null,
-    });
-  }
-});
-
-// Error handler
+// ✅ Manejador de errores global
 app.use((err, req, res, next) => {
   console.error('Error global:', err.stack);
   res.status(500).render('error', {
@@ -175,7 +152,7 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Inicio de servidor
+// ✅ Inicio de servidor
 const PORT = process.env.PORT || 8080;
 const server = httpServer.listen(PORT, () => {
   console.log(`🚀 Servidor listo en http://localhost:${PORT}`);
@@ -186,7 +163,7 @@ server.on('error', (err) => {
   process.exit(1);
 });
 
-// Cierre limpio
+// ✅ Cierre limpio
 process.on('SIGTERM', () => {
   server.close(() => {
     console.log('Proceso terminado');

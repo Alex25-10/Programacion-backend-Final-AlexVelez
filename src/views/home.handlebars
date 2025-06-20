@@ -3,19 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <title>Productos</title>
-  <link rel="stylesheet" href="/src/public/css/home.css">
+  <link rel="stylesheet" href="/css/home.css">
 </head>
 <body>
   <header>
     <h1>🛍️ Lista de Productos</h1>
     <div style="text-align: right;">
-      <a href="/carts/{{userCartId}}" class="go-cart-btn">🛒 Ver Carrito</a>
+      {{#if userCartId}}
+        <a href="/cart/{{userCartId}}" class="go-cart-btn">🛒 Ver Carrito</a>
+      {{else}}
+        <span class="go-cart-btn disabled" style="opacity: 0.6; cursor: not-allowed;">🛒 Sin carrito</span>
+      {{/if}}
     </div>
   </header>
 
-<form method="GET" action="/products">
-
-
+  <form method="GET" action="/products">
     <label for="query">Buscar:</label>
     <input type="text" name="query" id="query" value="{{filters.query}}" placeholder="Nombre o categoría">
 
@@ -36,8 +38,7 @@
     <button type="submit">Aplicar</button>
 
     {{#if hasFilters}}
-    <a href="/products" style="margin-left: 10px;">Limpiar filtros</a>
-
+      <a href="/products" style="margin-left: 10px;">Limpiar filtros</a>
     {{/if}}
   </form>
 
@@ -55,10 +56,11 @@
           <p><strong>Categoría:</strong> {{category}}</p>
           <a href="/products/{{this._id}}">Ver detalle</a>
 
-
-          <form method="POST" action="/api/carts/{{../userCartId}}/products/{{_id}}">
-            <button type="submit">Agregar al carrito</button>
-          </form>
+          {{#if ../userCartId}}
+            <button onclick="agregarAlCarrito('{{../userCartId}}', '{{_id}}')">Agregar al carrito</button>
+          {{else}}
+            <button disabled title="No hay carrito activo">Agregar al carrito</button>
+          {{/if}}
         </li>
         <hr>
       {{/each}}
@@ -67,8 +69,6 @@
     <div class="empty-result">
       <h4>No se encontraron productos con esos filtros.</h4>
       <a href="/products" class="go-back-btn">Volver al catálogo completo</a>
-
-
     </div>
   {{/if}}
 
@@ -83,5 +83,28 @@
       <a href="{{pagination.nextLink}}">Página siguiente ➡</a>
     {{/if}}
   </div>
+
+  <script>
+    async function agregarAlCarrito(cartId, productId) {
+      try {
+        const response = await fetch(`/api/carts/${cartId}/products/${productId}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ quantity: 1 })
+        });
+
+        const data = await response.json();
+
+        if (data.status === 'success') {
+          alert('✅ Producto agregado al carrito');
+        } else {
+          alert('❌ Error al agregar al carrito');
+        }
+      } catch (err) {
+        console.error('Error:', err);
+        alert('❌ Error inesperado al agregar al carrito');
+      }
+    }
+  </script>
 </body>
 </html>

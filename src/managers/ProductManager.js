@@ -89,7 +89,8 @@ class ProductManager {
     if (query) params.append('query', query);
     if (availability) params.append('availability', availability);
 
-    return `/api/products?${params.toString()}`;
+    return `/products?${params.toString()}`;
+
   }
 
   async getProductById(pid) {

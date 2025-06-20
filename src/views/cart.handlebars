@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Carrito</title>
-  <link rel="stylesheet" href="/src/public/css/cart.css">
+  <link rel="stylesheet" href="/css/cart.css">
 </head>
 <body>
   <div class="cart-container">
@@ -23,7 +23,7 @@
           </thead>
           <tbody>
             {{#each products}}
-              <tr>
+              <tr data-product-id="{{this.product._id}}">
                 <td class="product-info">
                   <img src="{{this.product.thumbnail.[0]}}" alt="{{this.product.title}}" class="product-image">
                   <span class="product-name">{{this.product.title}}</span>
@@ -37,9 +37,7 @@
                 </td>
                 <td class="product-subtotal">${{multiply this.product.price this.quantity}}</td>
                 <td class="product-actions">
-                  <form action="/api/carts/{{../cartId}}/products/{{this.product._id}}?_method=DELETE" method="POST">
-                    <button type="submit" class="delete-btn">Eliminar</button>
-                  </form>
+                  <button class="delete-btn" data-product-id="{{this.product._id}}">Eliminar</button>
                 </td>
               </tr>
             {{/each}}
@@ -50,25 +48,24 @@
       <div class="cart-summary">
         <h3 class="cart-total">Total: <span>${{calcTotal products}}</span></h3>
         <div class="cart-buttons">
-          <form action="/api/carts/{{cartId}}?_method=DELETE" method="POST">
-            <button type="submit" class="clear-cart-btn">Vaciar Carrito</button>
-          </form>
+          <button id="clear-cart-btn" class="clear-cart-btn">Vaciar Carrito</button>
           <a href="/checkout" class="checkout-btn">Finalizar Compra</a>
         </div>
       </div>
 
       <div class="continue-shopping">
-        <a href="/api/products" class="continue-btn">← Seguir comprando</a>
+        <a href="/products" class="continue-btn">← Seguir comprando</a>
       </div>
     {{else}}
       <div class="empty-cart-message">
         <h4>Tu carrito está vacío ☹️</h4>
-        <a href="/api/products" class="shop-btn">Ir a comprar</a>
+        <a href="/products" class="shop-btn">Ir a comprar</a>
       </div>
     {{/if}}
   </div>
 
   <script>
+    // Actualizar cantidad con fetch
     document.querySelectorAll('.quantity-form').forEach(form => {
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -78,9 +75,7 @@
         try {
           const response = await fetch(form.action, {
             method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ quantity })
           });
 
@@ -91,9 +86,56 @@
           }
         } catch (error) {
           console.error('Error:', error);
+          alert('Error de conexión con el servidor');
+        }
+      });
+    });
+
+    // Eliminar producto con fetch
+    document.querySelectorAll('.delete-btn').forEach(button => {
+      button.addEventListener('click', async () => {
+        const pid = button.dataset.productId;
+        const cartId = "{{cartId}}";
+        const confirmed = confirm("¿Eliminar este producto del carrito?");
+        if (!confirmed) return;
+
+        try {
+          const response = await fetch(`/api/carts/${cartId}/products/${pid}`, {
+            method: 'DELETE'
+          });
+
+          if (response.ok) {
+            location.reload();
+          } else {
+            alert('Error al eliminar el producto');
+          }
+        } catch (error) {
+          console.error('Error:', error);
           alert('Error al conectar con el servidor');
         }
       });
+    });
+
+    // Vaciar carrito con fetch
+    document.getElementById('clear-cart-btn').addEventListener('click', async () => {
+      const cartId = "{{cartId}}";
+      const confirmed = confirm("¿Vaciar todo el carrito?");
+      if (!confirmed) return;
+
+      try {
+        const response = await fetch(`/api/carts/${cartId}`, {
+          method: 'DELETE'
+        });
+
+        if (response.ok) {
+          location.reload();
+        } else {
+          alert('Error al vaciar el carrito');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error de conexión con el servidor');
+      }
     });
   </script>
 </body>
