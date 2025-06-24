@@ -45,7 +45,7 @@ class ProductManager {
       const result = await this.model.paginate(filter, options);
 
       return {
-        docs: result.docs, // ✅ CAMBIO CLAVE AQUÍ: usamos "docs" en lugar de "payload"
+        docs: result.docs,
         totalPages: result.totalPages,
         prevPage: result.prevPage,
         nextPage: result.nextPage,

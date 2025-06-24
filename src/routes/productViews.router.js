@@ -12,10 +12,10 @@ productViewsRouter.get('/', (req, res) => {
 });
 
 
-// 🟢 Ver carrito por ID
+
 productViewsRouter.get('/cart/:cid', getCartView);
 
-// 🟢 Ruta para listar productos con filtros y paginación
+
 productViewsRouter.get('/products', async (req, res) => {
   try {
     const { limit = 10, page = 1, sort, query, availability } = req.query;
@@ -59,7 +59,7 @@ productViewsRouter.get('/products', async (req, res) => {
   }
 });
 
-// 🟢 Ruta para ver un solo producto por ID
+
 productViewsRouter.get('/products/:pid', async (req, res) => {
   try {
     const pid = req.params.pid;

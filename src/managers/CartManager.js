@@ -32,7 +32,7 @@ class CartManager {
     }
 
     await cart.save();
-    return await this.getCartById(cid); // Devuelve ya populado
+    return await this.getCartById(cid); 
   }
 
   // Eliminar un producto del carrito
@@ -42,7 +42,7 @@ class CartManager {
 
     cart.products = cart.products.filter(p => p.product.toString() !== pid);
     await cart.save();
-    return await this.getCartById(cid); // Devuelve ya populado
+    return await this.getCartById(cid); 
   }
 
   // Vaciar el carrito completo
@@ -52,7 +52,7 @@ class CartManager {
 
     cart.products = [];
     await cart.save();
-    return await this.getCartById(cid); // Devuelve ya populado
+    return await this.getCartById(cid); 
   }
 
   // Reemplazar todos los productos del carrito
@@ -64,7 +64,7 @@ class CartManager {
 
     cart.products = products;
     await cart.save();
-    return await this.getCartById(cid); // Devuelve ya populado
+    return await this.getCartById(cid); 
   }
 
   // Actualizar la cantidad de un producto en el carrito
@@ -77,7 +77,7 @@ class CartManager {
 
     cart.products[productIndex].quantity = quantity;
     await cart.save();
-    return await this.getCartById(cid); // Devuelve ya populado
+    return await this.getCartById(cid);
   }
 }
 

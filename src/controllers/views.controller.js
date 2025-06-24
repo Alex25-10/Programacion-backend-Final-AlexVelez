@@ -72,7 +72,7 @@ export const getCartView = async (req, res) => {
   try {
     const { cid } = req.params;
 
-    // Validar formato de ObjectId (24 caracteres hex)
+    
     if (!cid || cid.length !== 24) {
       return res.status(400).render('error', {
         error: 'ID de carrito inválido',
